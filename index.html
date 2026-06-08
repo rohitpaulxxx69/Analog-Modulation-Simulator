@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analog Amplitude Modulation (AM) Simulator - Virtual Lab</title>
+  <meta name="description" content="An interactive, real-time virtual laboratory simulator for engineering students studying Amplitude Modulation (AM), complete with waveforms, math equations, and analytics.">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- KaTeX CSS for beautiful math formula rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" crossorigin="anonymous">
+</head>
+<body>
+  <!-- Background decorative glow -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="app-container">
+    
+    <!-- Header -->
+    <header>
+      <div class="brand-section">
+        <div class="logo-icon">
+          <!-- Waveform SVG Logo -->
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 10c3-3 3-5 5-5s2 7 5 7 2-7 5-7 2 5 5 5"></path>
+            <path d="M2 14c3 3 3 5 5 5s2-7 5-7 2 7 5 7 2-5 5-5" stroke-dasharray="2 2" opacity="0.6"></path>
+          </svg>
+        </div>
+        <div class="brand-details">
+          <h1>Analog Modulation Lab</h1>
+          <p>Experiment 01: Amplitude Modulation (AM) Analysis & Verification</p>
+        </div>
+      </div>
+      
+      <!-- Theme Switch -->
+      <div class="theme-switch-container">
+        <button id="themeToggle" class="theme-toggle-btn" title="Toggle Dark/Light Mode" aria-label="Toggle Dark/Light Mode">
+          <!-- Sun Icon -->
+          <svg id="sunIcon" style="display: none;" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+          </svg>
+          <!-- Moon Icon -->
+          <svg id="moonIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid">
+      
+      <!-- Sidebar Panels -->
+      <div class="sidebar-panel">
+        
+        <!-- Controls Card -->
+        <section class="card card-simulation-controls">
+          <div class="card-title">
+            <span>Simulation Parameters</span>
+            <span class="title-icon">🎛️</span>
+          </div>
+          <!-- Play & Reset Actions -->
+          <div class="parameter-group action-buttons">
+            <button id="playBtn" class="btn btn-primary" title="Animate Waveform (Oscilloscope Mode)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="play-icon">
+                <polygon points="6 3 20 12 6 21 6 3"></polygon>
+              </svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pause-icon" style="display: none;">
+                <rect x="14" y="4" width="4" height="16" rx="1"></rect>
+                <rect x="6" y="4" width="4" height="16" rx="1"></rect>
+              </svg>
+              <span id="playBtnText">Run sweep</span>
+            </button>
+            <button id="resetBtn" class="btn btn-secondary" title="Reset all to default settings">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                <path d="M16 3h5v5"></path>
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                <path d="M8 21H3v-5"></path>
+              </svg>
+              Reset Lab
+            </button>
+          </div>
+          <!-- Message Signal Controls -->
+          <div class="parameter-group">
+            <div class="parameter-header">
+              <span class="parameter-label">
+                <span class="parameter-color-dot" style="background-color: var(--color-message);"></span>
+                Message Amplitude ($A_m$)
+              </span>
+              <div class="parameter-value-container">
+                <input type="number" id="amVal" class="parameter-input" min="0" max="10" step="0.1" value="5.0">
+                <span class="unit">V</span>
+              </div>
+            </div>
+            <div class="slider-container">
+              <input type="range" id="amSlider" class="slider-message" min="0" max="10" step="0.1" value="5.0">
+            </div>
+          </div>
+          <div class="parameter-group">
+            <div class="parameter-header">
+              <span class="parameter-label">
+                <span class="parameter-color-dot" style="background-color: var(--color-message);"></span>
+                Message Frequency ($f_m$)
+              </span>
+              <div class="parameter-value-container">
+                <input type="number" id="fmVal" class="parameter-input" min="10" max="1000" step="10" value="100">
+                <span class="unit">Hz</span>
+              </div>
+            </div>
+            <div class="slider-container">
+              <input type="range" id="fmSlider" class="slider-message" min="10" max="1000" step="10" value="100">
+            </div>
+          </div>
+          <!-- Carrier Signal Controls -->
+          <div class="parameter-group">
+            <div class="parameter-header">
+              <span class="parameter-label">
+                <span class="parameter-color-dot" style="background-color: var(--color-carrier);"></span>
+                Carrier Amplitude ($A_c$)
+              </span>
+              <div class="parameter-value-container">
+                <input type="number" id="acVal" class="parameter-input" min="0.5" max="10" step="0.1" value="5.0">
+                <span class="unit">V</span>
+              </div>
+            </div>
+            <div class="slider-container">
+              <input type="range" id="acSlider" class="slider-carrier" min="0.5" max="10" step="0.1" value="5.0">
+            </div>
+          </div>
+          <div class="parameter-group">
+            <div class="parameter-header">
+              <span class="parameter-label">
+                <span class="parameter-color-dot" style="background-color: var(--color-carrier);"></span>
+                Carrier Frequency ($f_c$)
+              </span>
+              <div class="parameter-value-container">
+                <input type="number" id="fcVal" class="parameter-input" min="100" max="10000" step="100" value="1000">
+                <span class="unit">Hz</span>
+              </div>
+            </div>
+            <div class="slider-container">
+              <input type="range" id="fcSlider" class="slider-carrier" min="100" max="10000" step="100" value="1000">
+            </div>
+          </div>
+          <!-- Modulation Index Control -->
+          <div class="parameter-group">
+            <div class="parameter-header">
+              <span class="parameter-label">
+                <span class="parameter-color-dot" style="background-color: var(--color-am);"></span>
+                Modulation Index ($m$)
+              </span>
+              <div class="parameter-value-container">
+                <input type="number" id="mVal" class="parameter-input" min="0" max="2" step="0.01" value="1.0">
+                <span class="unit"></span>
+              </div>
+            </div>
+            <div class="slider-container">
+              <input type="range" id="mSlider" class="slider-am" min="0" max="2" step="0.01" value="1.0">
+            </div>
+          </div>
+        </section>
+        <!-- Calculated Metrics Card -->
+        <section class="card card-metrics">
+          <div class="card-title">
+            <span>Laboratory Metrics</span>
+            <span class="title-icon">📊</span>
+          </div>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Modulation Index ($m$)</div>
+              <div id="mMetric" class="metric-value">1.00</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Sideband Power Ratio</div>
+              <div id="powerMetric" class="metric-value">33.3%</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Max AM Voltage ($V_{max}$)</div>
+              <div id="vMaxMetric" class="metric-value">10.0 V</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Min AM Voltage ($V_{min}$)</div>
+              <div id="vMinMetric" class="metric-value">0.0 V</div>
+            </div>
+          </div>
+          <!-- Overmodulation warning panel -->
+          <div id="warningPanel" class="warning-panel">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <div>
+              <strong>Overmodulation Alert! (m > 1.0)</strong><br>
+              The message envelope crosses the zero axis. Phase reversal will occur, causing severe distortion in envelope detectors.
+            </div>
+          </div>
+        </section>
+      </div>
+      <!-- Main Visualizations & Theory Panels -->
+      <div class="main-content">
+        
+        <!-- Stacked Charts Card -->
+        <section class="card charts-card">
+          <div class="chart-header">
+            <div class="card-title" style="margin-bottom: 0; border: none; padding: 0;">
+              <span>Oscilloscope Signal Viewer</span>
+            </div>
+            <div class="chart-controls-row">
+              <label class="parameter-label" style="margin-right: 12px; cursor: pointer;">
+                <input type="checkbox" id="envelopeCheckbox" checked style="margin-right: 6px; cursor: pointer;">
+                Show Envelope
+              </label>
+              <button id="resetZoomBtn" class="btn-chart-action" title="Reset zoom levels to auto">
+                Reset Zoom
+              </button>
+            </div>
+          </div>
+          <div class="charts-stack">
+            <!-- Message Signal Plot -->
+            <div class="chart-wrapper">
+              <canvas id="messageChart"></canvas>
+            </div>
+            
+            <!-- Carrier Signal Plot -->
+            <div class="chart-wrapper">
+              <canvas id="carrierChart"></canvas>
+            </div>
+            
+            <!-- Modulated Signal Plot -->
+            <div class="chart-wrapper">
+              <canvas id="amChart"></canvas>
+            </div>
+          </div>
+        </section>
+        <!-- Mathematical Equations Display -->
+        <section class="card">
+          <div class="card-title">
+            <span>Modulation Formulas & Mathematical Model</span>
+            <span class="title-icon">🧮</span>
+          </div>
+          <div class="formula-display-container">
+            <div>
+              <p style="margin-bottom: 8px; font-weight: 500;">1. Message Signal, $m(t)$:</p>
+              <div class="formula-block">
+                $$m(t) = A_m \cos(2\pi f_m t)$$
+              </div>
+            </div>
+            <div>
+              <p style="margin-bottom: 8px; font-weight: 500;">2. Carrier Signal, $c(t)$:</p>
+              <div class="formula-block">
+                $$c(t) = A_c \cos(2\pi f_c t)$$
+              </div>
+            </div>
+            <div>
+              <p style="margin-bottom: 8px; font-weight: 500;">3. Amplitude Modulated (AM) Signal, $s(t)$:</p>
+              <div class="formula-block">
+                $$s(t) = A_c \left[1 + m \cos(2\pi f_m t)\right] \cos(2\pi f_c t)$$
+              </div>
+            </div>
+          </div>
+        </section>
+        <!-- Lab Overview, Explanations and Theory -->
+        <section class="card">
+          <div class="lab-info-tabs">
+            <button class="tab-btn active" data-tab="theory">Theory & background</button>
+            <button class="tab-btn" data-tab="overmodulation">Overmodulation analysis</button>
+            <button class="tab-btn" data-tab="applications">Practical Applications</button>
+          </div>
+          <!-- Tab: Theory -->
+          <div id="theoryTab" class="tab-content active">
+            <h3>Amplitude Modulation (AM) DSB-FC</h3>
+            <p>
+              <span class="highlight-text">Amplitude Modulation (AM)</span> is a technique used in electronic communication, most commonly for transmitting information via a radio carrier wave. In AM, the amplitude (signal strength) of the carrier wave is varied in proportion to the instantaneous amplitude of the message (information) signal, such as an audio signal.
+            </p>
+            <p>
+              The equations represent a <span class="highlight-text">Double Sideband Large Carrier (DSB-LC)</span> or Double Sideband Full Carrier (DSB-FC) modulation scheme. This is the traditional AM broadcasting system.
+            </p>
+            <h3>Modulation Index ($m$)</h3>
+            <p>
+              The modulation index $m$ (also called modulation depth) is a measure of the extent of modulation. It represents the ratio of the amplitude of the message signal ($A_m$) to the carrier amplitude ($A_c$):
+              $$m = \frac{A_m}{A_c}$$
+            </p>
+            <p>
+              For distortionless recovery of the message using simple envelope detectors, the modulation index should satisfy $0 \le m \le 1$.
+            </p>
+            <h3>Power in AM Signal</h3>
+            <p>
+              The total power $P_t$ of an AM signal consists of the carrier power $P_c$ and sidebands power $P_{sb}$ (upper and lower sidebands):
+              $$P_t = P_c \left(1 + \frac{m^2}{2}\right)$$
+              The sidebands contain all the useful information. The efficiency $\eta$ represents the percentage of total power that contains the actual information:
+              $$\eta = \frac{P_{sb}}{P_t} = \frac{m^2}{2 + m^2} \times 100\%$$
+              For a modulation index of $m = 1.0$, the efficiency reaches its maximum of $\approx 33.3\%$. The remaining $66.7\%$ of the transmitted power resides in the carrier wave itself, which carries no information but is crucial for simple receiver detection.
+            </p>
+          </div>
+          <!-- Tab: Overmodulation -->
+          <div id="overmodulationTab" class="tab-content">
+            <h3>Understanding Overmodulation ($m > 1$)</h3>
+            <p>
+              When the message signal amplitude $A_m$ exceeds the carrier amplitude $A_c$, the modulation index $m$ becomes greater than $1$. This condition is known as <span class="highlight-text">overmodulation</span>.
+            </p>
+            <p>
+              In the time domain, you can observe that the lower envelope of the modulated wave crosses the zero-voltage axis and becomes positive, while the upper envelope crosses below zero. This creates a phase reversal in the carrier signal at the points of envelope crossing:
+            </p>
+            <ul>
+              <li><span class="highlight-text">Envelope Distortion:</span> A simple diode envelope detector (commonly used in inexpensive AM receivers) cannot follow the phase reversals. It will instead rectify the signal and follow the absolute value of the envelope, producing a heavily distorted output representing $|1 + m\cos(2\pi f_m t)|$ rather than the original message.</li>
+              <li><span class="highlight-text">Sideband Splatter:</span> In the frequency domain, the abrupt phase transitions of overmodulation generate high-frequency components that spread far beyond the allocated bandwidth. This causes interference in adjacent radio channels, termed "sideband splatter".</li>
+            </ul>
+            <p>
+              To prevent overmodulation, transmitters use automatic level controls (limiters) to ensure the peak message voltage never exceeds the carrier amplitude.
+            </p>
+          </div>
+          <!-- Tab: Applications -->
+          <div id="applicationsTab" class="tab-content">
+            <h3>Practical Applications of AM</h3>
+            <p>
+              Although newer, more bandwidth- and power-efficient modulation methods have been developed (such as FM, SSB, and digital schemes), Amplitude Modulation is still widely used due to the simplicity of transmitter and receiver circuits.
+            </p>
+            <ul>
+              <li><span class="highlight-text">AM Broadcasting:</span> Medium Wave (MW) and Short Wave (SW) bands are still active worldwide, providing news and entertainment over hundreds of miles due to ionospheric reflection.</li>
+              <li><span class="highlight-text">Airband Communications:</span> VHF radio bands ($108 - 137 \text{ MHz}$) for civil aviation use amplitude modulation. AM exhibits the "capture effect" less than FM, allowing two transmitters on the same frequency to be heard simultaneously (a pilot can hear an overriding emergency call rather than one signal fully blocking the other).</li>
+              <li><span class="highlight-text">QAM (Quadrature Amplitude Modulation):</span> Modern high-speed digital communications (such as Wi-Fi, cable internet, and LTE/5G cellular networks) combine AM with Phase Modulation (PSK) to encode multiple bits per symbol, maximizing spectral efficiency.</li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </div>
+    <!-- Footer -->
+    <footer>
+      <p>Analog Amplitude Modulation Simulator &bull; Designed for Engineering Education &bull; 2026</p>
+    </footer>
+  </div>
+  <!-- CDN scripts -->
+  <!-- Hammer.js (needed for Chart.js Zoom) -->
+  <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Chart.js Zoom Plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+  <!-- KaTeX core and auto-renderer -->
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+  
+  <!-- Main Simulator Script -->
+  <script src="app.js"></script>
+</body>
+</html>
